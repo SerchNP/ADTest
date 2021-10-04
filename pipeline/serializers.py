@@ -1,10 +1,23 @@
 from rest_framework import serializers
 
+from .models import MetrobusTracking
 
-class AcceptTermsSerializer(serializers.Serializer):
-	accept = serializers.BooleanField()
 
-	def validate(self, data):
-		if data['accept'] == False:
-			raise serializers.ValidationError({'accept': ("Tienes que aceptar los términos y condiciones para continuar.")})
-		return data
+class UnitsAvailableSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = MetrobusTracking
+		fields = ('vehicle_id', 'vehicle_label')
+
+
+
+class UnitRecordsSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = MetrobusTracking
+		fields = ('date', 'geographic_point', 'mayoralty_name')
+
+
+
+class MayoraltiesAvailableSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = MetrobusTracking
+		fields = ('mayoralty_id', 'mayoralty_name')
