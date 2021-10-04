@@ -12,7 +12,7 @@ import json, requests
 # Función para leer los datos del metrobus cada hora e insertar los datos seleccionados en el modelo
 def getMetrobusInfo(request):
 	# Obtener la info de la api del metrobus
-	info = requests.get('https://datos.cdmx.gob.mx/api/3/action/datastore_search?resource_id=ad360a0e-b42f-482c-af12-1fd72140032e')
+	info = requests.get('https://datos.cdmx.gob.mx/api/3/action/datastore_search?resource_id=ad360a0e-b42f-482c-af12-1fd72140032e&limit=300')
 	# Comprobar si hubo respuesta exitosa
 	if (info.status_code == 200):
 		# Se parsean los datos de la api de JSON a diccionario
@@ -22,7 +22,10 @@ def getMetrobusInfo(request):
 			# Se extraen los registros en una variable para ser iterada
 			metrobus_records = metrobus_data['result']['records']
 			# Recorrer los registros obtenidos
+			algo = 1
 			for element in metrobus_records:
+				print(algo, element['vehicle_id'])
+				algo += 1
 				# Por cada elemento, consultamos la alcaldía de acuerdo a la latitud y longitud
 				mayoralty_id, mayoralty_name = getMayoraltyInfo(element['position_latitude'], element['position_longitude'])
 				if mayoralty_id is None:
@@ -31,8 +34,6 @@ def getMetrobusInfo(request):
 					# Verificamos si existe el registro en el modelo
 					if not MetrobusTracking.objects.filter(
 						vehicle_id 			= element['vehicle_id'],
-						mayoralty_id 		= mayoralty_id,
-						trip_route_id 		= element['trip_route_id'],
 						date 				= element['date_updated'],
 					).exists():
 						# Si no existe, lo insertamos en el modelo
@@ -85,7 +86,10 @@ def getMayoraltyInfo(latitude, longitude):
 					mayoralty_id = element['id']
 					mayoralty_name = element['nomgeo']
 					break
-	
+		# Si no se encuentra información de la alcaldía, poner valores default
+		if mayoralty_id is None:
+			mayoralty_id = 0
+			mayoralty_name = 'S/D'
 		return mayoralty_id, mayoralty_name
 
 
