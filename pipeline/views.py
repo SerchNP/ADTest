@@ -24,7 +24,6 @@ def getMetrobusInfo(request):
 			# Recorrer los registros obtenidos
 			algo = 1
 			for element in metrobus_records:
-				print(algo, element['vehicle_id'])
 				algo += 1
 				# Por cada elemento, consultamos la alcaldía de acuerdo a la latitud y longitud
 				mayoralty_id, mayoralty_name = getMayoraltyInfo(element['position_latitude'], element['position_longitude'])
