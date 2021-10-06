@@ -4,8 +4,6 @@ from django.shortcuts import render
 from .models import MetrobusTracking
 from .serializers import MayoraltiesAvailableSerializer, UnitRecordsSerializer, UnitsAvailableSerializer
 
-from itertools import groupby
-from operator import itemgetter
 import json, requests
 
 
@@ -22,9 +20,7 @@ def getMetrobusInfo(request):
 			# Se extraen los registros en una variable para ser iterada
 			metrobus_records = metrobus_data['result']['records']
 			# Recorrer los registros obtenidos
-			algo = 1
 			for element in metrobus_records:
-				algo += 1
 				# Por cada elemento, consultamos la alcaldía de acuerdo a la latitud y longitud
 				mayoralty_id, mayoralty_name = getMayoraltyInfo(element['position_latitude'], element['position_longitude'])
 				if mayoralty_id is None:
