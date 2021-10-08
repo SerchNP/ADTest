@@ -6,10 +6,10 @@ services:
         container_name: django
         command: python manage.py runserver 0.0.0.0:8000
         volumes:
-            - .:/usr/src/app
+            - .:/app
         ports: 
             - "8000:8000"
-        enviroment:
+        environment:
             - DEBUG=1
             - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
             - CELERY_BROKER=redis://redis:6379/0/
@@ -17,24 +17,32 @@ services:
         depends_on:
             - pgdb
             - redis
-    celery:
+    celery-worker:
         build: .
-        command: celery worker --a=arkondata --loglevel=info
+        command: celery -A arkondata worker -l INFO
         volumes:
-            - .:/usr/src/app
+            - .:/app
+        depends_on:
+            - django
+            - redis
+    celery-beat:
+        build: .
+        command: celery -A arkondata beat -l INFO
+        volumes:
+            - .:/app
         depends_on:
             - django
             - redis
     pgdb:
         image: postgres
         container_name: pgdb
-        enviroment:
+        environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
         volumes:
             - pgdata:/var/lib/postgresql/data/
     redis:
-        image: "redis.alpine"
+        image: redis
 volumes:
     pgdata:
